@@ -37,6 +37,7 @@ while [ $# -gt 0 ]; do
     opt_nopackage=1
     ;;
   "--with-demos")
+    opt_strip=
     opt_demos="-D enable_extras=true"
     ;;
   "--dev-build")
