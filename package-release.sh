@@ -5,7 +5,7 @@ set -e
 shopt -s extglob
 
 if [ -z "$1" ] || [ -z "$2" ]; then
-  echo "Usage: $0 version destdir [--native] [--no-package] [--dev-build] [--debug]"
+  echo "Usage: $0 version destdir [--native] [--no-package] [--with-demos] [--dev-build] [--debug]"
   exit 1
 fi
 
@@ -26,6 +26,7 @@ opt_devbuild=0
 opt_native=0
 opt_buildtype="release"
 opt_strip=--strip
+opt_demos=
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -35,8 +36,12 @@ while [ $# -gt 0 ]; do
   "--no-package")
     opt_nopackage=1
     ;;
+  "--with-demos")
+    opt_demos="-D enable_extras=true"
+    ;;
   "--dev-build")
     opt_strip=
+    opt_demos="-D enable_extras=true"
     opt_nopackage=1
     opt_devbuild=1
     ;;
@@ -60,6 +65,7 @@ function build_arch {
         --buildtype "${opt_buildtype}" \
         --prefix "$VKD3D_BUILD_DIR"    \
         $opt_strip                     \
+        $opt_demos                     \
         --bindir "x${arch}"            \
         --libdir "x${arch}"            \
         "$VKD3D_BUILD_DIR/build.${arch}"
@@ -70,7 +76,7 @@ function build_arch {
   if [ $opt_devbuild -eq 0 ]; then
     if [ $opt_native -eq 0 ]; then
         # get rid of some useless .a files
-        rm "$VKD3D_BUILD_DIR/x${arch}/"*.!(dll)
+        rm "$VKD3D_BUILD_DIR/x${arch}/"*.!(@(dll|exe))
     fi
     rm -R "$VKD3D_BUILD_DIR/build.${arch}"
   fi
